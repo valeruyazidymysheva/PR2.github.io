@@ -21,6 +21,7 @@
 			var camera, scene, renderer;
 			var controls;
 			var ambientLight, light;
+			var Earth, phi=-Math.PI / 2, radius = 1200;
 			init();
 			animate();
 
@@ -30,14 +31,15 @@
 				document.body.appendChild( container );
 
 				// CAMERA
-				camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 8000 );
-				camera.position.set( 300, 700, 900 );
+				camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 100000 );
+				camera.position.set( 0, 0, 2500 );
 
 				// LIGHTS
 				ambientLight = new THREE.AmbientLight( 0x333333 );	// 0.2
 
-				light = new THREE.DirectionalLight( 0xFFFFFF, 1.0 );
-				light.position.set( 1, 1, 1 );				
+				light = new THREE.PointLight( 0xFFFFFF );
+				light.intensity = 3;
+				light.position.set( 0, 0, 0 );
 				// direction is set in GUI
 
 				// RENDERER
@@ -54,117 +56,58 @@
 				controls.addEventListener( 'change', render );
 				//controls.rotateSpeed = 1; 
 				controls.enableZoom = true;  
-				controls.zoomSpeed = 0.5;  
-
-				controls.minDistance = 500;
-				controls.maxDistance = 2500;
-				
+				controls.zoomSpeed = 0.5; 			
 				controls.enableDamping = true;
 
 				// scene itself
 				scene = new THREE.Scene();
-				scene.background = new THREE.Color( 0xD3D3D3 );
+				//scene.background = new THREE.Color( 0x120A2A );
 
 				scene.add( ambientLight );
 				scene.add( light );
 			
 
 				// scene objects
-//new THREE.JSONLoader().load('teapot.js', function(geometry) { 
-//  var material	= new THREE.MeshNormalMaterial(); 
-//  var mesh	= new THREE.Mesh( geometry, material ); 
-//  scene.add( mesh ); 
-// teapot = mesh; 
-//});
-					var x = -100;var y = -200;var z = 300;
-					//конус
-					var radiusTop = 0; var radiusBottom = 150;
-					var heigth = 180; var segments = 4;
-					var geometry = new THREE.CylinderGeometry( radiusTop, radiusBottom, heigth, segments );
-					var material = new THREE.MeshPhongMaterial( { color: 0x66ff33 } );
-					var Cylinder = new THREE.Mesh( geometry, material );
-					Cylinder.position.set( x+800, y+300, z-500 );
-					//Cube.rotation.y = Math.PI / 6;
-					scene.add( Cylinder ); 
-					var geometry = new THREE.SphereGeometry(100, 50, 50); 
-					var material = new THREE.MeshPhongMaterial( { color: 0x1E3AC4 } );
-					var Sphere1 = new THREE.Mesh( geometry, material );
-					Sphere1.position.set( x+500, y+300, z-500 );
-					scene.add( Sphere1 );
-
-				var textureLoader = new THREE.TextureLoader();
-				var texture = textureLoader.load( 'kot.jpg' );
-				var material = new THREE.MeshBasicMaterial( { map: texture } );
-	
-			//	var material = new THREE.MeshPhongMaterial( { color: 0x177245 } );	
-					var geometry = new THREE.BoxGeometry( 200, 200, 200 );
-					var Cube = new THREE.Mesh( geometry, material );
-					Cube.position.set( x-100, y+300, z-500);
-					//Cube.rotation.y = Math.PI / 6;
-					scene.add( Cube );				
-
-
-				
-//конус
-					var radiusTop = 0; var radiusBottom = 120;
-					var heigth = 180; var segments = 300;
-					var geometry = new THREE.CylinderGeometry( radiusTop, radiusBottom, heigth, segments );
-					var material = new THREE.MeshPhongMaterial( { color: 0x800080 } );
-					var Cylinder = new THREE.Mesh( geometry, material );
-					Cylinder.position.set( x+200, y+300, z-500 );
-					//Cube.rotation.y = Math.PI / 6;
-					scene.add( Cylinder ); 
-
-
-
-
-					//Цилиндр
-					var radiusTop = 80; var radiusBottom = 80;
-                                        var heigth = 150; var segments = 20;
-					var geometry = new THREE.CylinderGeometry( radiusTop, radiusBottom, heigth, segments );
-					var material = new THREE.MeshPhongMaterial( { color: 0x66ff33 } );
-					var Cylinder = new THREE.Mesh( geometry, material );
-					Cylinder.position.set( x-100, y+300, z );
-					//Cube.rotation.y = Math.PI / 6;
-					scene.add( Cylinder );
-
-					
-
-					
-					
-
-				
-                      
-var geometry = new THREE.TorusGeometry( 50, 20, 100, 100 );
-var material = new THREE.MeshBasicMaterial( { color: 0xffc0cb } );
-var torus = new THREE.Mesh( geometry, material );
-torus.rotation.x = Math.PI / -2;
-torus.position.set( x+500, y+300, z );
-scene.add( torus );
-
-var radiusTop = 80;
-var radiusBottom = 80;
-var heigth = 190; var segments = 3;
-var geometry = new THREE.CylinderGeometry(
-radiusTop, radiusBottom, heigth, segments );
-var material = new THREE.MeshPhongMaterial( { color: 0xff0000 } );
-var prism = new THREE.Mesh( geometry, material );
-prism.position.set( x+200, y+300, z );
-prism.rotation.x = Math.PI/-2;
-scene.add( prism );
-
-var radiusTop = 60;
-var radiusBottom = 60;
-var heigth = 150; var segments = 3;
-var geometry = new THREE.CylinderGeometry(
-radiusTop, radiusBottom, heigth, segments );
-var material = new THREE.MeshPhongMaterial( { color: 0x964b00 } );
-var prism = new THREE.Mesh( geometry, material );
-prism.position.set( x+700, y+300, z );
-prism.rotation.x = Math.PI;
-scene.add( prism );
-	}
 			
+				// Earth
+				
+				var textureLoader = new THREE.TextureLoader();
+				var map = textureLoader.load( 'earth.jpg' );
+				map.wrapS = map.wrapT = THREE.RepeatWrapping;
+				map.anisotropy = 16;
+				var material = new THREE.MeshPhongMaterial( { map: map } );
+				material.shininess = 0;
+				
+				var geometry = new THREE.SphereGeometry( 100, 64, 64 );
+				Earth = new THREE.Mesh( geometry, material );
+				scene.add( Earth );	
+				
+				// Sun
+				
+				var geometry = new THREE.SphereGeometry( 200, 64, 64 );	
+				var material = new THREE.MeshBasicMaterial( { color: 0xffaa00 } );				
+				var Sun = new THREE.Mesh( geometry, material );
+				scene.add( Sun );
+
+				var mapC = textureLoader.load( "glow.png" );
+				var sMaterial = new THREE.SpriteMaterial( { map: mapC, color: 0xffaa00 } );
+				sMaterial.blending = THREE.AdditiveBlending;	
+				var sprite = new THREE.Sprite( sMaterial );
+				sprite.scale.set( 500, 500, 1.0 );
+				Sun.add( sprite ); 
+
+				// Sky
+				
+				var geometry = new THREE.BoxGeometry ( 50000, 50000, 50000 );
+				var map = textureLoader.load( 'sky.jpg' );
+				map.wrapS = map.wrapT = THREE.RepeatWrapping;
+				map.repeat.set( 4, 4 );
+				map.anisotropy = 16;
+				var material = new THREE.MeshBasicMaterial( { map: map, side: THREE.BackSide } );		
+				var Sky = new THREE.Mesh( geometry, material );				
+				scene.add( Sky );
+
+			}
 
 			// EVENT HANDLERS
 
@@ -190,6 +133,10 @@ scene.add( prism );
 
 			function render() {
 
+				Earth.position.x = radius * Math.cos( phi );  
+				Earth.position.z = radius * Math.sin( phi ); 
+				phi = phi + 0.001;
+				Earth.rotation.y = Earth.rotation.y + 0.01;
 				renderer.render( scene, camera );
 
 			}			
